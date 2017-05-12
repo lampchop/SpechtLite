@@ -1,0 +1,19 @@
+machine:
+  xcode:
+    version: "8.1"
+dependencies:
+  pre:
+    - echo "2.3.1" > .ruby-version
+  override:
+    - bin/bootstrap-if-needed
+  cache_directories:
+    - "Carthage"
+test:
+  override:
+    - set -o pipefail && xcodebuild -project SpechtLite.xcodeproj -scheme "SpechtLite" build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO | xcpretty
+deployment:
+  release:
+    tag: /.*/
+    owner: zhuhaow
+    commands:
+      - bin/release_app

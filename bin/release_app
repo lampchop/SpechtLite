@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+set -e
+
+echo $P12_CERT | base64 -D > cert/cert.p12
+sudo security unlock-keychain -p circle circle.keychain
+sudo security import cert/cert.p12 -k circle.keychain -P "" -T /usr/bin/codesign
+
+[ -f $(git rev-parse --git-dir)/shallow ] && git fetch --unshallow
+gem install gym github-markup redcarpet --no-ri --no-rdoc
+gym
+ditto -c -k --sequesterRsrc --keepParent SpechtLite.app SpechtLite.zip
+
+export GOPATH=$HOME/golang
+export PATH=$PATH:$GOPATH/bin
+go get github.com/aktau/github-release
+github-release release \
+  --user zhuhaow \
+  --repo SpechtLite \
+  --tag $CIRCLE_TAG \
+  --name $CIRCLE_TAG \
+  --description $CIRCLE_TAG
+
+github-release upload \
+  --user zhuhaow \
+  --repo SpechtLite \
+  --tag $CIRCLE_TAG \
+  --name SpechtLite.zip \
+  --file SpechtLite.zip
+
+echo $DSA_PRIVATE_KEY | base64 -D > cert/dsa_priv.pem
+
+bin/publish_appcast

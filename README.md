@@ -1,4 +1,5 @@
-#Specht Lite
+# SpechtLite
+
 [![Join the chat at https://gitter.im/zhuhaow/NEKit](https://badges.gitter.im/zhuhaow/NEKit.svg)](https://gitter.im/zhuhaow/NEKit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Join the chat at https://telegram.me/NEKitGroup](https://img.shields.io/badge/chat-on%20Telegram-blue.svg)](https://telegram.me/NEKitGroup) [![Build Status](https://travis-ci.org/zhuhaow/SpechtLite.svg?branch=master)](https://travis-ci.org/zhuhaow/SpechtLite) [![GitHub release](https://img.shields.io/github/release/zhuhaow/SpechtLite.svg)](https://github.com/zhuhaow/SpechtLite/releases) [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 ### A rule-based proxy app for macOS.
 
@@ -23,7 +24,7 @@ The core of SpechtLite consists just a few lines of code invoking [NEKit](https:
 
 Note there is no fancy GUI configuration panel. But no worry, you simply need some YAML files to get everything running. 
 
-If you do need a fancy GUI, consider some commercial alternatives such as the Mac version of [Surge](http://surge.run).
+If you do need a fancy GUI, consider some commercial alternatives such as the Mac version of [Surge](http://nssurge.com).
 
 **[Wingy](https://itunes.apple.com/cn/app/wingy-mian-fei-banvpn-ke-hu/id1148026741?mt=8) is a free app built with NEKit available on App Store for your iDevice.** Note Wingy is not created by or affiliated with me.
 
@@ -72,10 +73,14 @@ adapter:
     # Shadowsocks encryption methods are not fully tested, please report if there is anything not working.
     method: AES-128-CFB
     password: ss_password
+    # Currently support: origin and verify_sha1
+    protocol: origin
+    # Currently support: origin, http_simple and tls1.2_ticket_auth
+    obfs: origin
   - id: adapter4
     type: socks5
     host: socks5.server
-    port 3128
+    port: 3128
   # Speed adapter automatically connects to all specified adapters (with given delay) 
   # and uses the one that becomes ready first.
   - id: speed

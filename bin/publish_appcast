@@ -1,8 +1,23 @@
 #!/usr/bin/env sh
 
+set -e
+set -o pipefail
+
+if [ -z "$TRAVIS_TAG" ]
+then
+echo "Not able to build on non-tag commit"
+
+else
 echo "Generating appcast file..."
 
-ruby -rerb -rdate -e "puts ERB.new(File.read(\"appcast/appcast.xml.erb\"), nil, '-').result" > appcast/latestappcast.xml
+if [[ "$TRAVIS_TAG" =~ ^([0-9]+\.?)+(\.|-)[a-z]+[0-9]*$ ]]
+then
+ruby -rerb -rdate -e "puts ERB.new(File.read(\"appcast/devappcast.xml.erb\"), nil, '-').result" > appcast/devappcast.xml
+else
+ruby -rerb -rdate -e "puts ERB.new(File.read(\"appcast/stableappcast.xml.erb\"), nil, '-').result" > appcast/stableappcast.xml
+ruby -rerb -rdate -e "puts ERB.new(File.read(\"appcast/stableappcast.xml.erb\"), nil, '-').result" > appcast/latestappcast.xml
+ruby -rerb -rdate -e "puts ERB.new(File.read(\"appcast/devappcast.xml.erb\"), nil, '-').result" > appcast/devappcast.xml
+fi
 
 echo "Validate signature..."
 echo "The MD5 of archive:"
@@ -14,17 +29,12 @@ cat cert/dsa_pub.pem
 
 openssl dgst -sha1 -binary < SpechtLite.zip | openssl dgst -dss1 -verify cert/dsa_pub.pem -signature signature
 
-# remove all redundant files
-find . -not -name "appcast" -not -name ".git" -maxdepth 1 -print0 | xargs -0 rm -rf --
-# copy appcast files to root
-cp -r appcast/. .
-rm -rf appcast/
-
-echo "Publish appcast file..."
-# push update
-git checkout --orphan gh-pages
+git clone --depth=1 --branch=gh-pages https://github.com/zhuhaow/SpechtLite.git SpechtLiteSite
+cp -rf appcast/. SpechtLiteSite/
+cd SpechtLiteSite
 git add .
-git -c user.name="Travis CI" commit -m "Publish appcast"
-git push --force --quiet https://$GITHUB_API_KEY@github.com/zhuhaow/SpechtLite.git gh-pages > /dev/null 2>&1
+git -c user.name="TRAVIS CI" commit -m "Publish appcast [ci skip]"
+git push --force --quiet https://$GITHUB_TOKEN@github.com/zhuhaow/SpechtLite.git gh-pages > /dev/null 2>&1
 
 echo "Done ^_^"
+fi
